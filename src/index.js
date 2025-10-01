@@ -108,19 +108,33 @@ function Index() {
             <div className="footer-section">
               <h3>Validaciones</h3>
               <div className="tech-images">
-                {/* IMAGEN 1 en el footer - HTML */}
-                <img 
-                  src={htmlImage} 
-                  alt="HTML5 - Lenguaje de marcado web" 
-                  className="tech-image"
-                />
-                {/* IMAGEN 2 en el footer - CSS */}
-                <img 
-                  src={cssImage} 
-                  alt="CSS3 - Hojas de estilo en cascada" 
-                  className="tech-image"
-                />
-              </div>
+  {/* IMAGEN 1 en el footer - HTML */}
+  <a 
+    href="https://validator.w3.org/" 
+    target="_blank" 
+    rel="noopener noreferrer"
+  >
+    <img 
+      src={htmlImage} 
+      alt="HTML5 - Lenguaje de marcado web" 
+      className="tech-image"
+    />
+  </a>
+
+  {/* IMAGEN 2 en el footer - CSS */}
+  <a 
+    href="https://jigsaw.w3.org/css-validator/#validate_by_uri" 
+    target="_blank" 
+    rel="noopener noreferrer"
+  >
+    <img 
+      src={cssImage} 
+      alt="CSS3 - Hojas de estilo en cascada" 
+      className="tech-image"
+    />
+  </a>
+</div>
+
        
             </div>
 
