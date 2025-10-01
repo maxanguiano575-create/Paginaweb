@@ -5,6 +5,10 @@ import reportWebVitals from './reportWebVitals';
 // MODIFICACIÓN 1: Importar el componente Inventario
 import Inventario from './vistas/Inventario';
 
+// IMPORTAR LAS IMÁGENES desde src
+import htmlImage from './html.jpg';
+import cssImage from './css.jpg';
+
 // Tu componente principal - ahora dentro de index.js
 function Index() {
   // Estado para productos que vendrán del backend
@@ -34,10 +38,10 @@ function Index() {
           <a href="#promociones">Promociones</a>
         </nav>
         <div className="actions">
-          <button>Cuenta</button>
-          <button>Carrito</button>
+          <button type="button">Cuenta</button>
+          <button type="button">Carrito</button>
           {/* MODIFICACIÓN 3: Botón para cambiar entre tienda e inventario */}
-          <button onClick={() => setMostrarInventario(!mostrarInventario)}>
+          <button type="button" onClick={() => setMostrarInventario(!mostrarInventario)}>
             {mostrarInventario ? 'Volver a Tienda' : 'Inventario'}
           </button>
         </div>
@@ -54,7 +58,7 @@ function Index() {
           <section className="banner">
             <h1>Moda deportiva para cada paso</h1>
             <p>¡Meses sin intereses y envío gratis!</p>
-            <button>Comprar ahora</button>
+            <button type="button">Comprar ahora</button>
           </section>
 
           {/* Categorías populares */}
@@ -78,7 +82,7 @@ function Index() {
                     <div className="product-image">Imagen</div>
                     <h4>{p.nombre}</h4>
                     <p>${p.precio}</p>
-                    <button>Agregar al carrito</button>
+                    <button type="button">Agregar al carrito</button>
                   </div>
                 ))
               )}
@@ -87,7 +91,7 @@ function Index() {
         </>
       )}
 
-      {/* MODIFICACIÓN 5: Footer SOLO en la vista de tienda */}
+      {/* MODIFICACIÓN 5: Footer SOLO en la vista de tienda CON IMÁGENES */}
       {!mostrarInventario && (
         <footer className="footer">
           <div className="footer-sections">
@@ -99,6 +103,25 @@ function Index() {
             <div className="footer-section">
               <h3>Visión</h3>
               <p>Ser la tienda líder en moda deportiva en México, reconocida por nuestra innovación, servicio excepcional y compromiso con el deporte y estilo de vida saludable.</p>
+            </div>
+
+            <div className="footer-section">
+              <h3>Validaciones</h3>
+              <div className="tech-images">
+                {/* IMAGEN 1 en el footer - HTML */}
+                <img 
+                  src={htmlImage} 
+                  alt="HTML5 - Lenguaje de marcado web" 
+                  className="tech-image"
+                />
+                {/* IMAGEN 2 en el footer - CSS */}
+                <img 
+                  src={cssImage} 
+                  alt="CSS3 - Hojas de estilo en cascada" 
+                  className="tech-image"
+                />
+              </div>
+       
             </div>
 
             <div className="footer-section">
