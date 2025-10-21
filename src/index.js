@@ -2,24 +2,17 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-// MODIFICACIÓN 1: Importar el componente Inventario
 import Inventario from './vistas/Inventario';
 
-// IMPORTAR LAS IMÁGENES desde src
 import htmlImage from './html.jpg';
 import cssImage from './css.jpg';
 
-// Tu componente principal - ahora dentro de index.js
 function Index() {
-  // Estado para productos que vendrán del backend
   const [productos, setProductos] = useState([]);
-  // MODIFICACIÓN 2: Estado para controlar qué vista mostrar (tienda o inventario)
   const [mostrarInventario, setMostrarInventario] = useState(false);
 
-  // Categorías de ejemplo
   const categorias = ["Hombre", "Mujer", "Niño", "Running", "Básquetbol", "Fútbol"];
 
-  // Llamada al backend para obtener productos
   useEffect(() => {
     fetch("http://localhost:3001/productos") 
       .then(res => res.json())
@@ -27,32 +20,70 @@ function Index() {
       .catch(err => console.log("Error al cargar productos:", err));
   }, []);
 
+  // Efectos interactivos premium
+  useEffect(() => {
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
+    // Efecto de partículas para el banner
+    const createParticles = () => {
+      const banner = document.querySelector('.banner');
+      const particlesContainer = document.createElement('div');
+      particlesContainer.className = 'banner-particles';
+      
+      for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.width = `${Math.random() * 4 + 2}px`;
+        particle.style.height = particle.style.width;
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDelay = `${Math.random() * 20}s`;
+        particle.style.background = 'rgba(255,255,255,0.3)';
+        particlesContainer.appendChild(particle);
+      }
+      
+      banner.appendChild(particlesContainer);
+    };
+    
+    createParticles();
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <div className="app">
       <header className="navbar">
-        <div className="logo">tiendatenis</div>
-        <nav>
-          <a href="#hombre">Hombre</a>
-          <a href="#mujer">Mujer</a>
-          <a href="#niño">Niño</a>
-          <a href="#promociones">Promociones</a>
-        </nav>
-        <div className="actions">
-          <button type="button">Cuenta</button>
-          <button type="button">Carrito</button>
-          {/* MODIFICACIÓN 3: Botón para cambiar entre tienda e inventario */}
-          <button type="button" onClick={() => setMostrarInventario(!mostrarInventario)}>
-            {mostrarInventario ? 'Volver a Tienda' : 'Inventario'}
-          </button>
+        <div className="navbar-content">
+          <div className="logo">tiendatenis</div>
+          
+          {/* NAV SIMPLIFICADO - SOLO LOGO Y BOTONES */}
+          <div className="actions">
+            <button type="button">Cuenta</button>
+            <button type="button">Carrito</button>
+            <button 
+              type="button" 
+              onClick={() => setMostrarInventario(!mostrarInventario)}
+            >
+              {mostrarInventario ? 'Tienda' : 'Inventario'}
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* MODIFICACIÓN 4: Mostrar Inventario o Tienda según el estado - CORREGIDO */}
       {mostrarInventario ? (
-        // SOLO muestra el inventario sin footer
         <Inventario />
       ) : (
-        // SOLO muestra la tienda sin footer  
         <>
           {/* Banner principal */}
           <section className="banner">
@@ -62,12 +93,15 @@ function Index() {
           </section>
 
           {/* Categorías populares */}
-          <section className="categories">
-            {categorias.map(cat => (
-              <div key={cat} className="category-card">
-                <h3>{cat}</h3>
-              </div>
-            ))}
+          <section className="categories-section">
+            <h2>Categorías Populares</h2>
+            <div className="categories">
+              {categorias.map(cat => (
+                <div key={cat} className="category-card">
+                  <h3>{cat}</h3>
+                </div>
+              ))}
+            </div>
           </section>
 
           {/* Productos destacados */}
@@ -79,7 +113,21 @@ function Index() {
               ) : (
                 productos.map(p => (
                   <div key={p.id} className="product-card">
-                    <div className="product-image">Imagen</div>
+                    <div className="product-image">
+                      {p.imagen_url ? (
+                        <img 
+                          src={p.imagen_url} 
+                          alt={p.nombre}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      <div className="image-placeholder" style={{display: p.imagen_url ? 'none' : 'block'}}>
+                        Imagen
+                      </div>
+                    </div>
                     <h4>{p.nombre}</h4>
                     <p>${p.precio}</p>
                     <button type="button">Agregar al carrito</button>
@@ -91,7 +139,6 @@ function Index() {
         </>
       )}
 
-      {/* MODIFICACIÓN 5: Footer SOLO en la vista de tienda CON IMÁGENES */}
       {!mostrarInventario && (
         <footer className="footer">
           <div className="footer-sections">
@@ -108,34 +155,30 @@ function Index() {
             <div className="footer-section">
               <h3>Validaciones</h3>
               <div className="tech-images">
-  {/* IMAGEN 1 en el footer - HTML */}
-  <a 
-    href="https://validator.w3.org/" 
-    target="_blank" 
-    rel="noopener noreferrer"
-  >
-    <img 
-      src={htmlImage} 
-      alt="HTML5 - Lenguaje de marcado web" 
-      className="tech-image"
-    />
-  </a>
+                <a 
+                  href="https://validator.w3.org/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <img 
+                    src={htmlImage} 
+                    alt="HTML5 - Lenguaje de marcado web" 
+                    className="tech-image"
+                  />
+                </a>
 
-  {/* IMAGEN 2 en el footer - CSS */}
-  <a 
-    href="https://jigsaw.w3.org/css-validator/#validate_by_uri" 
-    target="_blank" 
-    rel="noopener noreferrer"
-  >
-    <img 
-      src={cssImage} 
-      alt="CSS3 - Hojas de estilo en cascada" 
-      className="tech-image"
-    />
-  </a>
-</div>
-
-       
+                <a 
+                  href="https://jigsaw.w3.org/css-validator/#validate_by_uri" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <img 
+                    src={cssImage} 
+                    alt="CSS3 - Hojas de estilo en cascada" 
+                    className="tech-image"
+                  />
+                </a>
+              </div>
             </div>
 
             <div className="footer-section">
@@ -156,7 +199,6 @@ function Index() {
   );
 }
 
-// El punto de entrada de React - también en el mismo archivo
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

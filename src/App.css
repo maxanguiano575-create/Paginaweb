@@ -111,3 +111,30 @@ body {
   padding: 30px;
   margin-top: 40px;
 }
+/* Loading states */
+.products-grid p {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+  padding: 2rem;
+}
+
+/* Error states */
+.product-image img:not([src]) {
+  display: none;
+}
+
+.image-placeholder {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+/* Smooth transitions */
+* {
+  transition: all 0.2s ease;
+}
