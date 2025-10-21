@@ -6,20 +6,34 @@ function Inventario() {
   const [productos, setProductos] = useState([]);
   const [mensaje, setMensaje] = useState('');
   const [errores, setErrores] = useState({});
+  const [cssCargado, setCssCargado] = useState(false);
 
   useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://maxanguiano575-create.github.io/Paginaweb/src/inventario.css';
-    document.head.appendChild(link);
-
-    cargarProductos();
-
-    return () => {
-      if (document.head.contains(link)) {
-        document.head.removeChild(link);
+    // Cargar CSS desde GitHub RAW
+    const cargarCSS = async () => {
+      try {
+        const response = await fetch('https://raw.githubusercontent.com/maxanguiano575-create/Paginaweb/main/src/inventario.css');
+        const cssContent = await response.text();
+        
+        // Crear elemento style y agregar el CSS
+        const style = document.createElement('style');
+        style.textContent = cssContent;
+        document.head.appendChild(style);
+        
+        setCssCargado(true);
+        console.log('✅ CSS cargado desde GitHub');
+      } catch (error) {
+        console.error('❌ Error cargando CSS:', error);
+        // Fallback: cargar CSS local si hay error
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = './inventario.css';
+        document.head.appendChild(link);
       }
     };
+
+    cargarCSS();
+    cargarProductos();
   }, []);
 
   const cargarProductos = async () => {
