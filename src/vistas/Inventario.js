@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import htmlImage from '../html.jpg';
 import cssImage from '../css.jpg';
-
+import '../inventario.css';
 function Inventario() {
   const [productos, setProductos] = useState([]);
   const [mensaje, setMensaje] = useState('');
   const [errores, setErrores] = useState({});
-
+/*
   useEffect(() => {
     // ✅ Cargar CSS desde GitHub RAW (para pruebas)
     const cargarCSS = async () => {
@@ -33,7 +33,7 @@ function Inventario() {
     cargarCSS();
     cargarProductos();
   }, []);
-
+*/
   const cargarProductos = async () => {
     try {
       const response = await fetch('http://localhost:3001/productos');

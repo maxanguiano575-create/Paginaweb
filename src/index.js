@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+
 import reportWebVitals from './reportWebVitals';
 import Inventario from './vistas/Inventario';
-
+import './index.css';
 import htmlImage from './html.jpg';
 import cssImage from './css.jpg';
 
