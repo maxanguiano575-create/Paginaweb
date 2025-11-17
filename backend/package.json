@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "formik": "^2.4.6",
+    "jsonwebtoken": "^9.0.2",
     "mariadb": "^3.4.5",
     "react-router-dom": "^7.9.3",
     "yup": "^1.7.1"

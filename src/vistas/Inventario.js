@@ -1,50 +1,73 @@
 import React, { useEffect, useState } from 'react';
 import htmlImage from '../html.jpg';
 import cssImage from '../css.jpg';
-import '../inventario.css';
+import './inventario.css';
+
 function Inventario() {
   const [productos, setProductos] = useState([]);
   const [mensaje, setMensaje] = useState('');
   const [errores, setErrores] = useState({});
-/*
-  useEffect(() => {
-    // ✅ Cargar CSS desde GitHub RAW (para pruebas)
-    const cargarCSS = async () => {
-      try {
-        const response = await fetch('https://raw.githubusercontent.com/maxanguiano575-create/Paginaweb/main/src/inventario.css');
-        const cssContent = await response.text();
-        
-        // Crear elemento style y agregar el CSS
-        const style = document.createElement('style');
-        style.textContent = cssContent;
-        document.head.appendChild(style);
-        
-        console.log('✅ CSS cargado desde GitHub para pruebas');
-      } catch (error) {
-        console.error('❌ Error cargando CSS desde GitHub:', error);
-        // Fallback local si hay error
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = './inventario.css';
-        document.head.appendChild(link);
-      }
-    };
+  const [usuarioAutorizado, setUsuarioAutorizado] = useState(false);
+  const [cargando, setCargando] = useState(true);
 
-    cargarCSS();
-    cargarProductos();
-  }, []);
-*/
-  const cargarProductos = async () => {
+  // Verificar si el usuario es administrador
+  const verificarAdmin = () => {
     try {
-      const response = await fetch('http://localhost:3001/productos');
-      const data = await response.json();
-      setProductos(data);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUsuarioAutorizado(false);
+        setCargando(false);
+        return;
+      }
+
+      // Decodificar el token para obtener el rol
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.rol === 'admin') {
+        setUsuarioAutorizado(true);
+      } else {
+        setMensaje('❌ No tienes permisos de administrador');
+        setUsuarioAutorizado(false);
+      }
+      setCargando(false);
     } catch (error) {
-      console.error('Error al cargar productos:', error);
+      console.error('Error al verificar token:', error);
+      setMensaje('❌ Error de autenticación');
+      setUsuarioAutorizado(false);
+      setCargando(false);
     }
   };
 
-  // FUNCIÓN DE VALIDACIÓN MEJORADA CON LONGITUDES MÁXIMAS
+  const cargarProductos = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    console.log('Token:', token); // Agrega esto para debug
+    
+    const response = await fetch('http://localhost:3001/productos', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    console.log('Response status:', response.status); // Agrega esto
+    
+    if (response.ok) {
+      const data = await response.json();
+      setProductos(data);
+    } else if (response.status === 403) {
+      setMensaje('❌ No tienes permisos para ver el inventario');
+      setUsuarioAutorizado(false);
+    } else {
+      const errorText = await response.text();
+      console.log('Error response:', errorText); // Agrega esto
+      setMensaje('❌ Error al cargar productos');
+    }
+  } catch (error) {
+    console.error('Error completo al cargar productos:', error);
+    setMensaje('❌ Error de conexión');
+  }
+};
+
+  // FUNCIÓN DE VALIDACIÓN MEJORADA
   const validarFormulario = (datos, tipo) => {
     const nuevosErrores = {};
 
@@ -96,6 +119,7 @@ function Inventario() {
 
   const handleAgregar = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
     const formData = new FormData(e.target);
     const datos = {
       nombre: formData.get('nombre'),
@@ -117,12 +141,17 @@ function Inventario() {
     try {
       const response = await fetch('http://localhost:3001/productos', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           ...datos,
-          precio: parseFloat(datos.precio) // Convertir a número
+          precio: parseFloat(datos.precio)
         }),
       });
+
+      const responseData = await response.json();
 
       if (response.ok) {
         setMensaje('✅ Producto agregado correctamente');
@@ -130,14 +159,18 @@ function Inventario() {
         setErrores({});
         cargarProductos();
         setTimeout(() => setMensaje(''), 3000);
+      } else {
+        setMensaje(`❌ ${responseData.error || 'Error al agregar producto'}`);
       }
     } catch (error) {
-      setMensaje('❌ Error al agregar producto');
+      console.error('Error completo:', error);
+      setMensaje('❌ Error de conexión con el servidor');
     }
   };
 
   const handleModificar = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
     const formData = new FormData(e.target);
     const datos = {
       producto_id: formData.get('producto_id'),
@@ -159,14 +192,19 @@ function Inventario() {
     try {
       const response = await fetch(`http://localhost:3001/productos/${datos.producto_id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           nombre: datos.nombre,
-          precio: parseFloat(datos.precio), // Convertir a número
+          precio: parseFloat(datos.precio),
           categoria: datos.categoria,
           imagen_url: datos.imagen_url
         }),
       });
+
+      const responseData = await response.json();
 
       if (response.ok) {
         setMensaje('✅ Producto actualizado correctamente');
@@ -174,14 +212,18 @@ function Inventario() {
         setErrores({});
         cargarProductos();
         setTimeout(() => setMensaje(''), 3000);
+      } else {
+        setMensaje(`❌ ${responseData.error || 'Error al actualizar producto'}`);
       }
     } catch (error) {
-      setMensaje('❌ Error al actualizar producto');
+      console.error('Error completo:', error);
+      setMensaje('❌ Error de conexión con el servidor');
     }
   };
 
   const handleEliminar = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
     const formData = new FormData(e.target);
     const productoId = formData.get('producto_id');
 
@@ -195,16 +237,24 @@ function Inventario() {
     try {
       const response = await fetch(`http://localhost:3001/productos/${productoId}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
+
+      const responseData = await response.json();
 
       if (response.ok) {
         setMensaje('✅ Producto eliminado correctamente');
         e.target.reset();
         cargarProductos();
         setTimeout(() => setMensaje(''), 3000);
+      } else {
+        setMensaje(`❌ ${responseData.error || 'Error al eliminar producto'}`);
       }
     } catch (error) {
-      setMensaje('❌ Error al eliminar producto');
+      console.error('Error completo:', error);
+      setMensaje('❌ Error de conexión con el servidor');
     }
   };
 
@@ -213,6 +263,39 @@ function Inventario() {
     setErrores(prev => ({ ...prev, [campo]: '' }));
   };
 
+  useEffect(() => {
+    verificarAdmin();
+  }, []);
+
+  useEffect(() => {
+    if (usuarioAutorizado) {
+      cargarProductos();
+    }
+  }, [usuarioAutorizado]);
+
+  // Si está cargando, mostrar mensaje de carga
+  if (cargando) {
+    return (
+      <div className="inventario">
+        <div className="cargando">Verificando permisos...</div>
+      </div>
+    );
+  }
+
+  // Si no está autorizado, mostrar mensaje de acceso denegado
+  if (!usuarioAutorizado) {
+    return (
+      <div className="inventario">
+        <div className="acceso-denegado">
+          <h2>🔒 Acceso Denegado</h2>
+          <p>No tienes permisos de administrador para acceder al inventario.</p>
+          <p>Por favor, inicia sesión con una cuenta de administrador.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si está autorizado, mostrar la interfaz normal
   return (
     <div className="inventario">
       <h1>Gestión de Inventario</h1>
